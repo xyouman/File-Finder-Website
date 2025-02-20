@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Send Message to Raspberry Pi</title>
+  </head>
+  <body>
+    <h1>Send Message</h1>
+    <form id="messageForm">
+      <label for="type">Type:</label>
+      <input type="text" id="type" name="type" required><br><br>
+      
+      <label for="title">Title:</label>
+      <input type="text" id="title" name="title" required><br><br>
+      
+      <label for="link">Link:</label>
+      <input type="text" id="link" name="link" required><br><br>
+      
+      <label for="piAddress">Raspberry Pi Address (e.g., http://192.168.1.100:5000/endpoint):</label>
+      <input type="url" id="piAddress" name="piAddress" required><br><br>
+      
+      <button type="button" id="sendButton">Send Message</button>
+    </form>
+    
+    <div id="response"></div>
+  
+    <script>
+      document.getElementById('sendButton').addEventListener('click', async () => {
+        const type = document.getElementById('type').value;
+        const title = document.getElementById('title').value;
+        const link = document.getElementById('link').value;
+        const piAddress = document.getElementById('piAddress').value;
+        
+        const payload = { type, title, link };
+  
+        try {
+          const res = await fetch(piAddress, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+          
+          // Optionally wait for an ack message from the Pi
+          const ack = await res.text();
+          document.getElementById('response').textContent = "Ack: " + ack;
+        } catch (err) {
+          document.getElementById('response').textContent = "Error: " + err;
+        }
+      });
+    </script>
+  </body>
+</html>
