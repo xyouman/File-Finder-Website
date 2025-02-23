@@ -2,7 +2,13 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Send Message to Raspberry Pi</title>
+  <title>Send Message via Email</title>
+  <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script type="text/javascript">
+    (function(){
+      emailjs.init("YOUR_USER_ID"); // Replace with your EmailJS user ID
+    })();
+  </script>
 </head>
 <body>
   <h1>Send Message</h1>
@@ -16,42 +22,28 @@
     <label for="link">Link:</label>
     <input type="text" id="link" name="link" required value="http://example.com"><br><br>
     
-    <label for="piAddress">Raspberry Pi Address:</label>
-    <input type="url" id="piAddress" name="piAddress" required value="https://127.0.0.1:5000/endpoint"><br><br>
-    
-    <button type="button" id="sendButton">Send Message</button>
+    <button type="button" id="sendButton">Send Email</button>
     <button type="button" id="clearButton">Clear Response</button>
   </form>
   
   <div id="response" style="margin-top: 20px;"></div>
 
   <script>
-    document.getElementById('sendButton').addEventListener('click', async () => {
-      const type = document.getElementById('type').value;
-      const title = document.getElementById('title').value;
-      const link = document.getElementById('link').value;
-      const piAddress = document.getElementById('piAddress').value;
-      
-      const payload = { type, title, link };
+    document.getElementById('sendButton').addEventListener('click', () => {
+      const templateParams = {
+        type: document.getElementById('type').value,
+        title: document.getElementById('title').value,
+        link: document.getElementById('link').value,
+      };
 
-      try {
-        const res = await fetch(piAddress, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
+      emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+        .then(response => {
+          document.getElementById('response').textContent = "Email sent successfully!";
+        }, error => {
+          document.getElementById('response').textContent = "Error: " + JSON.stringify(error);
         });
-        
-        // Optionally wait for an ack message from the Pi
-        const ack = await res.text();
-        document.getElementById('response').textContent = "Ack: " + ack;
-      } catch (err) {
-        document.getElementById('response').textContent = "Error: " + err;
-      }
     });
 
-    // Clear response button functionality
     document.getElementById('clearButton').addEventListener('click', () => {
       document.getElementById('response').textContent = "";
     });
