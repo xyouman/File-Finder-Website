@@ -5,15 +5,13 @@
   <title>Send Message via Email</title>
   <!-- Include EmailJS SDK -->
   <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
-  <script type="text/javascript">
-    // You can choose to initialize EmailJS with a default user ID here,
-    // or later via another input if needed.
-    emailjs.init("YOUR_DEFAULT_USER_ID"); // Optional default. Remove if not used.
-  </script>
 </head>
 <body>
   <h1>Send Message via Email</h1>
   <form id="messageForm">
+    <label for="userID">EmailJS User ID:</label>
+    <input type="text" id="userID" name="userID" required value="default_user_id"><br><br>
+    
     <label for="serviceID">EmailJS Service ID:</label>
     <input type="text" id="serviceID" name="serviceID" required value="default_service_id"><br><br>
 
@@ -40,9 +38,13 @@
 
   <script>
     document.getElementById('sendButton').addEventListener('click', () => {
-      // Read dynamic EmailJS service/template IDs from the form
+      // Read dynamic EmailJS details from the form
+      const userID = document.getElementById('userID').value;
       const serviceID = document.getElementById('serviceID').value;
       const templateID = document.getElementById('templateID').value;
+      
+      // Initialize EmailJS with the provided User ID
+      emailjs.init(userID);
 
       // Prepare the email template parameters
       const templateParams = {
@@ -61,7 +63,6 @@
         });
     });
 
-    // Clear the response message
     document.getElementById('clearButton').addEventListener('click', () => {
       document.getElementById('response').textContent = "";
     });
