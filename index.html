@@ -6,14 +6,20 @@
   <!-- Include EmailJS SDK -->
   <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
   <script type="text/javascript">
-    (function(){
-      emailjs.init("YOUR_USER_ID"); // Replace with your EmailJS user ID
-    })();
+    // You can choose to initialize EmailJS with a default user ID here,
+    // or later via another input if needed.
+    emailjs.init("YOUR_DEFAULT_USER_ID"); // Optional default. Remove if not used.
   </script>
 </head>
 <body>
   <h1>Send Message via Email</h1>
   <form id="messageForm">
+    <label for="serviceID">EmailJS Service ID:</label>
+    <input type="text" id="serviceID" name="serviceID" required value="default_service_id"><br><br>
+
+    <label for="templateID">EmailJS Template ID:</label>
+    <input type="text" id="templateID" name="templateID" required value="default_template_id"><br><br>
+    
     <label for="type">Type:</label>
     <input type="text" id="type" name="type" required value="Notification"><br><br>
     
@@ -34,6 +40,11 @@
 
   <script>
     document.getElementById('sendButton').addEventListener('click', () => {
+      // Read dynamic EmailJS service/template IDs from the form
+      const serviceID = document.getElementById('serviceID').value;
+      const templateID = document.getElementById('templateID').value;
+
+      // Prepare the email template parameters
       const templateParams = {
         type: document.getElementById('type').value,
         title: document.getElementById('title').value,
@@ -41,7 +52,8 @@
         recipient_email: document.getElementById('recipientEmail').value
       };
 
-      emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+      // Send the email using the provided service and template IDs
+      emailjs.send(serviceID, templateID, templateParams)
         .then(response => {
           document.getElementById('response').textContent = "Email sent successfully!";
         }, error => {
@@ -49,6 +61,7 @@
         });
     });
 
+    // Clear the response message
     document.getElementById('clearButton').addEventListener('click', () => {
       document.getElementById('response').textContent = "";
     });
