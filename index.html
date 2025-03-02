@@ -2,21 +2,14 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Send Message via Email</title>
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" />
+  <title>Send Message via Formspree</title>
 </head>
 <body>
-  <h1>Send Message via Email</h1>
-  <form id="messageForm">
-    <label for="userID">EmailJS User ID:</label>
-    <input type="text" id="userID" name="userID" required value="default_user_id"><br><br>
-    
-    <label for="serviceID">EmailJS Service ID:</label>
-    <input type="text" id="serviceID" name="serviceID" required value="default_service_id"><br><br>
+  <h1>Send Message via Formspree</h1>
+  <form id="messageForm" method="POST">
+    <label for="formspreeEndpoint">Formspree Endpoint URL:</label>
+    <input type="url" id="formspreeEndpoint" name="formspreeEndpoint" required value="https://formspree.io/f/your_form_id"><br><br>
 
-    <label for="templateID">EmailJS Template ID:</label>
-    <input type="text" id="templateID" name="templateID" required value="default_template_id"><br><br>
-    
     <label for="type">Type:</label>
     <input type="text" id="type" name="type" required value="Notification"><br><br>
     
@@ -24,46 +17,52 @@
     <input type="text" id="title" name="title" required value="Default Title"><br><br>
     
     <label for="link">Link:</label>
-    <input type="text" id="link" name="link" required value="http://example.com"><br><br>
+    <input type="url" id="link" name="link" required value="http://example.com"><br><br>
     
-    <label for="recipientEmail">Recipient Email (for Pi to check):</label>
-    <input type="email" id="recipientEmail" name="recipientEmail" required value="yourincoming@example.com"><br><br>
-    
-    <button type="button" id="sendButton">Send Email</button>
+    <button type="submit" id="sendButton">Send Email</button>
     <button type="button" id="clearButton">Clear Response</button>
   </form>
   
   <div id="response" style="margin-top: 20px;"></div>
-
+  
   <script>
-    document.getElementById('sendButton').addEventListener('click', () => {
-      // Read dynamic EmailJS details from the form
-      const userID = document.getElementById('userID').value;
-      const serviceID = document.getElementById('serviceID').value;
-      const templateID = document.getElementById('templateID').value;
+    const form = document.getElementById('messageForm');
+    const responseDiv = document.getElementById('response');
+    const clearButton = document.getElementById('clearButton');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault(); // Prevent the default form submission
+
+      // Get the Formspree endpoint URL from the input and set it as the form's action.
+      const endpoint = document.getElementById('formspreeEndpoint').value;
+      form.action = endpoint;
       
-      // Initialize EmailJS with the provided User ID
-      emailjs.init(userID);
-
-      // Prepare the email template parameters
-      const templateParams = {
-        type: document.getElementById('type').value,
-        title: document.getElementById('title').value,
-        link: document.getElementById('link').value,
-        recipient_email: document.getElementById('recipientEmail').value
-      };
-
-      // Send the email using the provided service and template IDs
-      emailjs.send(serviceID, templateID, templateParams)
-        .then(response => {
-          document.getElementById('response').textContent = "Email sent successfully!";
-        }, error => {
-          document.getElementById('response').textContent = "Error: " + JSON.stringify(error);
-        });
+      // Create a FormData object from the form.
+      const formData = new FormData(form);
+      
+      // Use fetch to POST the form data to Formspree.
+      fetch(endpoint, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => {
+        if (response.ok) {
+          responseDiv.textContent = "Email sent successfully!";
+          form.reset();
+        } else {
+          responseDiv.textContent = "Failed to send email. Please check the endpoint and try again.";
+        }
+      })
+      .catch(error => {
+        responseDiv.textContent = "Error: " + error;
+      });
     });
 
-    document.getElementById('clearButton').addEventListener('click', () => {
-      document.getElementById('response').textContent = "";
+    clearButton.addEventListener('click', () => {
+      responseDiv.textContent = "";
     });
   </script>
 </body>
